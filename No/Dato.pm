@@ -5,12 +5,12 @@ use Carp ();
 
 require Exporter;
 @ISA=qw(Exporter);
-@EXPORT_OK = qw(tekstdato helligdag helligdager @UKEDAGER @MANEDER);
+@EXPORT_OK = qw(tekstdato helligdag hverdag helligdager @UKEDAGER @MANEDER);
 
 use strict;
 use vars qw(%SPECIAL_DAYS @UKEDAGER @MANEDER $VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
 
 
 =head1 NAME
@@ -36,8 +36,8 @@ No::Dato - Norwegian dates
 B<This documentation is written in Norwegian.>
 
 Denne modulen tilbyr funksjoner for å håndtere det som er spesielt med
-datoer på norsk.  Dette gjelder blandt annet å finne fram til de
-norske helligdagene.
+datoer på norsk.  Dette gjelder blant annet å identifisere offentlige
+høytidsdager.
 
 Følgende funksjoner er tilgjengelig:
 
@@ -49,23 +49,23 @@ Følgende funksjoner er tilgjengelig:
 
 
 %SPECIAL_DAYS = (
-  "Nyttårsdag"            => '01-01',
+  "nyttårsdag"            => '01-01',
   "1. mai"                => '05-01',
-  "Grunnlovsdag"          => '05-17',
-  "Juledag"               => '12-25',
-  "2. Juledag"            => '12-26',
+  "grunnlovsdag"          => '05-17',
+  "juledag"               => '12-25',
+  "2. juledag"            => '12-26',
 
   # relative to easter day
-  "Skjærtorsdag"          => -3,
-  "Langfredag"            => -2,
-  "Påskedag"              =>  0,
-  "2. Påskedag"           => +1,
-  "Kristi himmelfartsdag" => +39,
-  "Pinsedag"              => +49,
-  "2. Pinsedag"           => +50,
+  "skjærtorsdag"          => -3,
+  "langfredag"            => -2,
+  "påskedag"              =>  0,
+  "2. påskedag"           => +1,
+  "kristi himmelfartsdag" => +39,
+  "pinsedag"              => +49,
+  "2. pinsedag"           => +50,
 );
 
-@UKEDAGER = qw(Søndag Mandag Tirsdag Onsdag Torsdag Fredag Lørdag);
+@UKEDAGER = qw(søndag mandag tirsdag onsdag torsdag fredag lørdag);
 @MANEDER = qw(januar februar mars      april   mai      juni
               juli   august  september oktober november desember);
 
@@ -76,7 +76,7 @@ my %hellig_cache = ();
 
 Denne rutinen returnerer en dato formatert på formen:
 
-  Fredag, 7. februar 1997
+  fredag, 7. februar 2004
 
 Argumentet er en vanlig perl $time verdi.  Hvis argumentet utelates så
 benyttes dagens dato.
@@ -95,15 +95,20 @@ sub tekstdato (;$)
 
 Rutinen avgjør om en gitt dato er en norsk helligdag eller ikke.  Hvis
 det er en helligdag så vil navnet på helligdagen bli returnert.  Hvis
-det er en vanlig hverdag så vil en tom streng (som er FALSE i perl)
-bli returnert.
+det er en vanlig hverdag eller lørdag så vil en tom streng (som er
+FALSE i perl) bli returnert.
 
 Argumentet kan være en vanlig $time verdi eller en streng på formen
 "ÅÅÅÅ-MM-DD".
 
+For denne funksjonen er "helligdag" definert til å være det samme som
+norsk offentlig høytidsdag samt søndager, dvs de dagene som er røde på
+kalenderen.  Dette inkluderer nyttårsdagen, samt 1. og 17. mai selv om
+disse egentlig ikke er hellige.
+
 =cut
 
-sub helligdag (;$)
+sub helligdag (;$$)
 {
     my $date = shift || time;
     my $year;
@@ -128,11 +133,25 @@ sub helligdag (;$)
 	    my($m, $d) = split(/-/, $date);
 	    $weekday = (localtime(timelocal(12,0,0,$d, $m-1, $year-1900)))[6];
         }
-        $day = "Søndag" if $weekday == 0;
+        $day = "søndag" if $weekday == 0;
+	$day = "lørdag" if $weekday == 6 && $_[0];
     }
     $day;
 }
 
+=item hverdag($time)
+
+Rutinen avgjør om en gitt date er en hverdag eller ikke.  Lørdag er
+her ikke regnet som hverdag.
+
+Argumentet kan være en vanlig $time verdi eller en streng på formen
+"ÅÅÅÅ-MM-DD".
+
+=cut
+
+sub hverdag {
+    return !helligdag(shift, 1);
+}
 
 =item helligdager($year)
 
@@ -140,10 +159,14 @@ Denne rutinen vil returnere en liste av datostrenger, én for hver
 helligdag i året gitt som argument.  Hvis argumentet mangler vil vi
 bruke inneværende år.  Datostrengene er på formen:
 
-   "ÅÅÅÅ-MM-DD Skjærtorsdag"
+   "ÅÅÅÅ-MM-DD skjærtorsdag"
 
-Dvs. datoen formattert i henhold til ISO 8601 etterfulgt av navnet på
+Dvs. datoen formatert i henhold til ISO 8601 etterfulgt av navnet på
 helligdagen.  Listen vil være sortert på dato.
+
+For denne funksjonen er "helligdag" definert til å være det samme som
+norsk offentlig høytidsdag.  Søndagene er ikke tatt med selv om
+funksjonen helligdag(), beskrevet over, er TRUE for disse.
 
 =cut
 
@@ -162,12 +185,6 @@ sub helligdager (;$)
 		($month, $mday) = ($1, $2);
 	    } else {
 		($month, $mday) = dayno_to_date($year, $easter + $date);
-	    }
-	    # sjekk om det er en søndag i tillegg
-	    if ($year >= 1970 &&
-		(localtime(timelocal(12, 0, 0,
-				     $mday, $month-1, $year-1900)))[6] == 0) {
-		$text .= " (Søndag)";
 	    }
 	    $hellig_cache{$year}{sprintf "%02d-%02d", $month, $mday} = $text;
 	}
