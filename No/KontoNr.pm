@@ -8,7 +8,7 @@ require Exporter;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.7 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
@@ -206,12 +206,9 @@ sub mod_11
     my @digits = reverse (shift =~ /(\d)/g);
     my @factors = (2..7) x ((@digits-1)/6+1);
     my $sum = 0;
-    $sum += shift(@digits) * shift(@factors) while @digits;
-    my $k = 11 - ($sum % 11);
-    if ($k > 9) {
-	return undef if $k == 10;
-	return 0;
-    }
+    $sum -= shift(@digits) * shift(@factors) while @digits;
+    my $k = $sum % 11;
+    return undef if $k == 10;
     $k;
 }
 
