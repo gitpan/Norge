@@ -8,7 +8,7 @@ use Carp qw(croak);
 use strict;
 use vars qw($VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.8 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.9 $ =~ /(\d+)\.(\d+)/);
 
 
 =head1 NAME
@@ -90,12 +90,12 @@ sub personnr_ok
 
     # Så var det det å kjenne igjen hvilket hundreår som er det riktige.
     # Dette er implementert etter et ikke nødvendigvis troverdig rykte...
-    if ($pnr <= 500) {
+    if ($pnr < 500) {
         $date[0] += 1900;
-    } elsif ($date[0] < 50) {
-	$date[0] += 2000;
-    } else {
+    } elsif ($pnr < 750) {
 	$date[0] += 1800;
+    } else {
+	$date[0] += 2000;
     }
     return 0 unless _is_legal_date(@date);
 
