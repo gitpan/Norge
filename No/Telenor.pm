@@ -8,7 +8,7 @@ require Exporter;
 use strict;
 use vars qw(%TAKSTER $DEBUG $VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 
 =head1 NAME
@@ -148,9 +148,6 @@ __END__
 
 Prisberegningen kan bli unøyaktig hvis samtalen foregikk i overgangen
 mellom vinter- og sommertid eller omvendt.
-
-Jeg har heller ikke fått klarhet i hvilken takst som skal brukes på
-spesielle helligdager.  Det tas ikke hensyn til slike dager nå.
 
 =head1 AUTHOR
 
