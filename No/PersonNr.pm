@@ -8,7 +8,7 @@ use Carp qw(croak);
 use strict;
 use vars qw($VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.17 $ =~ /(\d+)\.(\d+)/);
 
 
 =head1 NAME
@@ -35,7 +35,7 @@ funksjoner for å bestemme personens kjønn og personens fødselsdato.
 Ingen av rutinene eksporteres implisitt.  Du må be om dem.  Følgende
 funksjoner er tilgjengelig:
 
-=over
+=over 4
 
 =item personnr_ok($nr)
 
@@ -43,6 +43,9 @@ Funksjonen personnr_ok() vil returnere FALSE hvis personnummeret gitt
 som argument ikke er gyldig.  Hvis nummeret er gyldig så vil
 funksjonen returnere $nr på standard form.  Nummeret som gis til
 personnr_ok() kan inneholde ' ' eller '-'.
+
+Standard form er her definert som 11 siffer uten noe skilletegn
+mellom tallgrupper.
 
 =cut
 
@@ -70,23 +73,37 @@ sub personnr_ok
     my @date = reverse unpack("A2A2A2A3", $nr);
     my $pnr = shift(@date);
 
-    # Genererte nummer med +50 i måned [pere]
-    $date[1] -= 50 if $date[1] > 50;
+    # H-nummer -- hjelpenummer, en virksomhetsintern, unik identifikasjon av
+    # en person som ikke har fødselsnummer/D-nummer eller hvor dette er
+    # ukjent.  4 er lagt til tredje siffer.
+    $date[1] -= 40 if $date[1] > 40;
 
-    # B-nummer -- midlertidig (max 6 mnd) personnr
+    # D-nummer -- For personer som ikke er bosatt i Norge, men som likevel
+    # er skatte- og/eller trygdepliktig.  4 er lagt til første siffer.
     $date[2] -= 40 if $date[2] > 40;
 
     # Så var det det å kjenne igjen hvilket hundreår som er det riktige.
-    # 900 er for genererte personnr.  Korrekt grenseverdi? [pere 1999-09-11]
-    if ($pnr < 500 || $pnr >= 900) {
+    #
+    #   Individnummer  År i fødselsdato  Født
+    #   500 - 749      > 54              1855 - 1899
+    #   000 - 499                        1900 - 1999
+    #   500 - 999      < 55              2000 - 2054
+    #
+    if ($pnr < 500) {
+        # ingen tvetydighet; person født 1900 - 1999
         $date[0] += 1900;
-    } elsif ($date[0] >= 55) {
-	# eldste person tildelt fødelsnummer er født i 1855.
-	$date[0] += 1800;
-    } else {
-	# vi har et problem igjen etter år 2054.  Det er ikke helt
-	# avklart hva løsningen da vil være.
+    } elsif ($pnr >= 750) {
+        # ingen tvetydighet; person født 2000 - 2054
 	$date[0] += 2000;
+    } else {
+        # tvetydig; må se på de to sifrene for fødselsår
+        if ($date[0] > 54) {
+            # person født 1855 - 1899
+            $date[0] += 1800;
+        } else {
+            # person født 2000 - 2054
+            $date[0] += 2000;
+        }
     }
     return "" unless _is_legal_date(@date);
 
@@ -153,12 +170,35 @@ sub fodt_dato
 
 =back
 
-=head1 BUGS
+=head1 REFERENCES
 
-Denne koden vil få problemer for personer født etter år 2054.
+=over 4
 
-=head1 AUTHOR
+=item [1]
 
-Gisle Aas <gisle@aas.no>
+"Hjelpenummer for personer uten kjent fødselsnummer", Torbjørn Nystadnes,
+Kompetansesenter for IT i helsevesenet AS (KITH).  KITH-rapport,
+Rapportnummer 11/98, ISBN 82-7846-051-5, 1998-12-11.
+
+=item [2]
+
+"Fødselsnummeret, oppbygging - kontrollsiffer - løsning etter år 2000".
+Brosjyre fra Skattedirektoratet.
+
+=item [3]
+
+Skattedirektoratet, Sentralkontoret for folkeregistrering,
+
+=back
+
+=head1 LIMITATIONS
+
+Personnummersystemet håndterer kun årstall fra og med 1855 til og med 2054.
+
+=head1 AUTHORS
+
+Gisle Aas <gisle@aas.no>, Peter J. Acklam <pjacklam@online.no>, Petter
+Reinholdtsen <pere@hungry.com>, Hallvard B. Furuseth
+<h.b.furuseth@usit.uio.no>.
 
 =cut
