@@ -8,7 +8,7 @@ use Carp qw(croak);
 use strict;
 use vars qw($VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.10 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
 
 
 =head1 NAME
@@ -73,12 +73,14 @@ sub personnr_ok
     $date[2] -= 30 if $date[2] > 40;
 
     # Så var det det å kjenne igjen hvilket hundreår som er det riktige.
-    # Dette er implementert etter et ikke nødvendigvis troverdig rykte...
     if ($pnr < 500) {
         $date[0] += 1900;
-    } elsif ($pnr < 750) {
+    } elsif ($date[0] >= 55) {
+	# eldste person tildelt fødelsnummer er født i 1855.
 	$date[0] += 1800;
     } else {
+	# vi har et problem igjen etter år 2054.  Det er ikke helt
+	# avklart hva løsningen da vil være.
 	$date[0] += 2000;
     }
     return "" unless _is_legal_date(@date);
@@ -146,9 +148,7 @@ sub fodt_dato
 
 =head1 BUGS
 
-Jeg er ikke helt sikker på om vi takler fødselsdatoer før år 1900 og
-etter år 2000.  Hvis noen kan fortelle meg hva algoritmen er så ville
-jeg være takknemlig.
+Denne koden vil få problemer for personer født etter år 2054.
 
 =head1 AUTHOR
 
