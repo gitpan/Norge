@@ -1,4 +1,4 @@
-print "1..51\n";
+print "1..55\n";
 
 use No::KontoNr qw(kontonr_ok kredittkortnr_ok mod_10 kontonr_f nok_f);
 
@@ -21,6 +21,11 @@ for ('52050603512',
      '82000148888',
      '08260122720',
      '82000127287',
+
+     # noen postgiro nr
+     '10 50905',
+     '1500206',
+     '1694801',
      ) {
     my $k = $_;
     $k =~ s/\D//g;
@@ -84,6 +89,9 @@ for (['1'          => 8],
 
 print "Tester formattering av kontonummer...\n";
 print "not " unless kontonr_f("5205 06 03512") eq "5205.06.03512";
+print "ok $testno\n"; $testno++;
+
+print "not " unless kontonr_f("1694801") eq "0000.16.94801";
 print "ok $testno\n"; $testno++;
 
 print "not " unless kontonr_f("") eq "????.??.?????";
