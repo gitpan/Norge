@@ -9,7 +9,7 @@ require Exporter;
 @EXPORT_OK=qw(no_xfrm no_aa_xfrm
 	      latin1_uc latin1_lc latin1_ucfirst latin1_lcfirst);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.2 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.3 $ =~ /(\d+)\.(\d+)/);
 
 
 =head1 NAME
@@ -63,7 +63,7 @@ L<perllocale>
 
 =head1 AUTHORS
 
-Hallvard B Furuseth <h.b.furuseth@usit.uio.no>, Gisle Aas <aas@sn.no>
+Hallvard B Furuseth <h.b.furuseth@usit.uio.no>, Gisle Aas <gisle@aas.no>
 
 =cut
 

@@ -10,7 +10,7 @@ require Exporter;
 use strict;
 use vars qw(%SPECIAL_DAYS @UKEDAGER @MANEDER $VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 
 =head1 NAME
@@ -39,6 +39,10 @@ Denne modulen tilbyr funksjoner for å håndtere det som er spesielt med
 datoer på norsk.  Dette gjelder blandt annet å finne fram til de
 norske helligdagene.
 
+Følgende funksjoner er tilgjengelig:
+
+=over
+
 =cut
 
 
@@ -62,17 +66,17 @@ norske helligdagene.
 );
 
 @UKEDAGER = qw(Søndag Mandag Tirsdag Onsdag Torsdag Fredag Lørdag);
-@MANEDER = qw(Januar Februar Mars      April   Mai      Juni
-              Juli   August  September Oktober November Desember);
+@MANEDER = qw(januar februar mars      april   mai      juni
+              juli   august  september oktober november desember);
 
 my %hellig_cache = ();
 
 
-=head2 tekstdato($time)
+=item tekstdato($time)
 
 Denne rutinen returnerer en dato formatert på formen:
 
-  Fredag, 7. Februar 1997
+  Fredag, 7. februar 1997
 
 Argumentet er en vanlig perl $time verdi.  Hvis argumentet utelates så
 benyttes dagens dato.
@@ -87,7 +91,7 @@ sub tekstdato (;$)
 }
 
 
-=head2 helligdag($time)
+=item helligdag($time)
 
 Rutinen avgjør om en gitt dato er en norsk helligdag eller ikke.  Hvis
 det er en helligdag så vil navnet på helligdagen bli returnert.  Hvis
@@ -130,7 +134,7 @@ sub helligdag (;$)
 }
 
 
-=head2 helligdager($year)
+=item helligdager($year)
 
 Denne rutinen vil returnere en liste av datostrenger, én for hver
 helligdag i året gitt som argument.  Hvis argumentet mangler vil vi
@@ -149,7 +153,7 @@ sub helligdager (;$)
 
     unless (exists $hellig_cache{$year}) {
 	my $easter = easter_day($year);
-    
+
 	my ($text, $date);
 	while (($text, $date) = each %SPECIAL_DAYS) {
 	    my($month, $mday);
@@ -259,6 +263,7 @@ sub dayno_to_date($$)
 1;
 __END__
 
+=back
 
 =head1 SEE ALSO
 
@@ -267,6 +272,6 @@ datoer (ÅÅÅÅ-MM-DD).
 
 =head1 AUTHOR
 
-Gisle Aas <aas@sn.no>
+Gisle Aas <gisle@aas.no>
 
 =cut

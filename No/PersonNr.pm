@@ -8,7 +8,7 @@ use Carp qw(croak);
 use strict;
 use vars qw($VERSION);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.12 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.15 $ =~ /(\d+)\.(\d+)/);
 
 
 =head1 NAME
@@ -32,11 +32,12 @@ siffrene i personnummerene er kontrollsiffre og må stemme overens med
 resten for at det skal være et gyldig nummer.  Modulen inneholder også
 funksjoner for å bestemme personens kjønn og personens fødselsdato.
 
-Ingen av rutinene eksporteres implisitt.  Du må be om dem.
+Ingen av rutinene eksporteres implisitt.  Du må be om dem.  Følgende
+funksjoner er tilgjengelig:
 
-=head1 FUNCTIONS
+=over
 
-=head2 personnr_ok($nr)
+=item personnr_ok($nr)
 
 Funksjonen personnr_ok() vil returnere FALSE hvis personnummeret gitt
 som argument ikke er gyldig.  Hvis nummeret er gyldig så vil
@@ -68,12 +69,16 @@ sub personnr_ok
     # Extract the date part
     my @date = reverse unpack("A2A2A2A3", $nr);
     my $pnr = shift(@date);
- 
+
+    # Genererte nummer med +50 i måned [pere]
+    $date[1] -= 50 if $date[1] > 50;
+
     # B-nummer -- midlertidig (max 6 mnd) personnr
-    $date[2] -= 30 if $date[2] > 40;
+    $date[2] -= 40 if $date[2] > 40;
 
     # Så var det det å kjenne igjen hvilket hundreår som er det riktige.
-    if ($pnr < 500) {
+    # 900 er for genererte personnr.  Korrekt grenseverdi? [pere 1999-09-11]
+    if ($pnr < 500 || $pnr >= 900) {
         $date[0] += 1900;
     } elsif ($date[0] >= 55) {
 	# eldste person tildelt fødelsnummer er født i 1855.
@@ -107,7 +112,7 @@ sub _is_legal_date
 }
 
 
-=head2 er_mann($nr)
+=item er_mann($nr)
 
 Vil returnere TRUE hvis $nr tilhører en mann.  Rutinen vil croake hvis
 nummeret er ugyldig.
@@ -122,7 +127,7 @@ sub er_mann
 }
 
 
-=head2 er_kvinne($nr)
+=item er_kvinne($nr)
 
 Vil returnere TRUE hvis $nr tilhører en kvinne.  Rutinen vil croake
 hvis nummeret er ugyldig.
@@ -132,7 +137,7 @@ hvis nummeret er ugyldig.
 sub er_kvinne { !er_mann(@_); }
 
 
-=head2 fodt_dato($nr)
+=item fodt_dato($nr)
 
 Vil returnere personens fødselsdato på formen "ÅÅÅÅ-MM-DD".  Rutinen
 returnerer C<""> hvis nummeret er ugyldig.
@@ -146,12 +151,14 @@ sub fodt_dato
 
 1;
 
+=back
+
 =head1 BUGS
 
 Denne koden vil få problemer for personer født etter år 2054.
 
 =head1 AUTHOR
 
-Gisle Aas <aas@sn.no>
+Gisle Aas <gisle@aas.no>
 
 =cut
