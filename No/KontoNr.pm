@@ -8,13 +8,13 @@ require Exporter;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 1.5 $ =~ /(\d+)\.(\d+)/);
 
 =head1 NAME
 
 No::KontoNr - Check Norwegian bank account numbers
 
-=head1 SYNPOSIS
+=head1 SYNOPSIS
 
   use No::KontoNr qw(kontonr_ok);
 
