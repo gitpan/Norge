@@ -1,0 +1,17 @@
+1997-02-17  Gisle Aas <aas@sn.no>
+
+	* Versjon 0.02
+
+	* Fra Hallvard B Furuseth: Støtte for B-nummer i No::PersonNr.
+
+	* Ny module sort sortering av norsk tekst No::Sort.
+
+	* Reimplementert mesteparten av No::KontoNr.
+
+	* Perl5.003 -w klaget over "$VERSION: possible typo".  Fikset.
+
+
+1997-02-07  Gisle Aas <aas@sn.no>
+
+	* Versjon 0.01
+

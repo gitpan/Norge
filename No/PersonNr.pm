@@ -4,10 +4,11 @@ require Exporter;
 @ISA=qw(Exporter);
 @EXPORT_OK = qw(personnr_ok er_mann er_kvinne fodt_dato);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 1.4 $ =~ /(\d+)\.(\d+)/);
-
-use strict;
 use Carp qw(croak);
+use strict;
+use vars qw($VERSION);
+
+$VERSION = sprintf("%d.%02d", q$Revision: 1.6 $ =~ /(\d+)\.(\d+)/);
 
 
 =head1 NAME
@@ -33,13 +34,14 @@ funksjoner for å bestemme personens kjønn og personens fødselsdato.
 
 Ingen av rutinene eksporteres implisitt.  Du må be om dem.
 
+=head1 FUNCTIONS
 
 =head2 personnr_ok($nr)
 
 Funksjonen personnr_ok() vil returnere FALSE hvis personnummeret gitt
 som argument ikke er gyldig.  Hvis nummeret er gyldig så vil
-funksjonen returnere nummeret selv på standard form.  Nummeret som gis
-til personnr_ok() kan inneholde ' ' eller '-'.
+funksjonen returnere $nr på standard form.  Nummeret som gis til
+personnr_ok() kan inneholde ' ' eller '-'.
 
 =cut
 
@@ -120,6 +122,10 @@ sub fodt_dato
     my $nr = personnr_ok(shift);
     croak "Feil i personnummer" unless $nr;
     my $dato = substr($nr, 0, 6);
+
+    # B-nummer -- midlertidig (max 6 mnd) personnr
+    substr($dato,0,1) =~ tr/4-7/0-3/;
+
     $dato =~ s/^(\d\d)(\d\d)(\d\d)$/$3-$2-$1/;
 
     # XXX: Så var det det å kjenne igjen hvilket hundreår som er det
@@ -130,3 +136,9 @@ sub fodt_dato
 }
 
 1;
+
+=head1 AUTHOR
+
+Gisle Aas <aas@sn.no>
+
+=cut
